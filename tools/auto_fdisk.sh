@@ -63,22 +63,22 @@ mkfs.ext4 ${1}1
 }
 
 fdisk_mounted() {
-while mount | grep "$Disk" > /dev/null 2>&1;do
+while mount | grep "$DISK" > /dev/null 2>&1;do
 	echo -e "\n${RGB_DANGER}This disk has been mounted:${RGB_END}"
-	mount | grep "$Disk"
+	mount | grep "$DISK"
 	echo -en "\n${RGB_DANGER}Force Unloading the disk? [y/n]:${RGB_END}"
 	while :; do
-	read Umount
-	if [[ ! ${Umount} =~ ^[y,n]$ ]]; then
+	read UMOUNT
+	if [[ ! ${UMOUNT} =~ ^[y,n]$ ]]; then
 		echo -en "${RGB_DANGER}Something went wrong, please try again [y/n]:${RGB_END}"
 	else
-		if [ "${Umount}" == 'y' ]; then
+		if [ "${UMOUNT}" == 'y' ]; then
 			echo -en "${RGB_WAIT}Unloading...${RGB_END}"
-			for i in `mount | grep "$Disk" | awk '{print $3}'`;do
+			for i in `mount | grep "$DISK" | awk '{print $3}'`;do
 				fuser -km $i >/dev/null
 				umount $i >/dev/null
-				temp=`echo $Disk | sed 's;/;\\\/;g'`
-				sed -i -e "/^$temp/d" /etc/fstab
+				TEMP=`echo $DISK | sed 's;/;\\\/;g'`
+				sed -i -e "/^$TEMP/d" /etc/fstab
 			done
 			echo -e "\r${RGB_SUCCESS}Success, the disk is unloaded!${RGB_END}"
 		else
@@ -89,13 +89,13 @@ while mount | grep "$Disk" > /dev/null 2>&1;do
 	done
 	echo -en "\n${RGB_DANGER}Ready to format the disk? [y/n]:${RGB_END}"
 	while :; do
-	read Choice
-	if [[ ! ${Choice} =~ ^[y,n]$ ]]; then
+	read CHOICE
+	if [[ ! ${CHOICE} =~ ^[y,n]$ ]]; then
 		echo -en "${RGB_DANGER}Something went wrong, please try again [y/n]:${RGB_END}"
 	else
-		if [ "${Choice}" == 'y' ]; then
+		if [ "${CHOICE}" == 'y' ]; then
 			echo -en "${RGB_WAIT}Formatting...${RGB_END}"
-			dd if=/dev/zero of=$Disk bs=512 count=1 &>/dev/null
+			dd if=/dev/zero of=$DISK bs=512 count=1 &>/dev/null
 			sync
 			echo -e "\r${RGB_SUCCESS}Success, the disk has been formatted!${RGB_END}"
 		else
@@ -124,13 +124,13 @@ echo -e "${RGB_INFO}2/6 : Show all active disks${RGB_END}"
 fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]"
 echo -en "\n${RGB_INFO}3/6 : Please choose the disk(e.g., /dev/vdb):${RGB_END}"
 while :; do
-read Disk
-if [ -z "`echo $Disk | grep '^/dev/.*vd[b-z]'`" ]; then
+read DISK
+if [ -z "`echo $DISK | grep '^/dev/.*vd[b-z]'`" ]; then
 	echo -en "${RGB_DANGER}Something went wrong, please try again (e.g., /dev/vdb):${RGB_END}"
 else
-	until fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]" | grep "Disk $Disk" &>/dev/null;do
+	until fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]" | grep "Disk $DISK" &>/dev/null;do
 		echo -en "${RGB_DANGER}Something went wrong, please try again (e.g., /dev/vdb):${RGB_END}"
-		read Disk
+		read DISK
 	done
 	fdisk_mounted
 	break
@@ -138,25 +138,25 @@ fi
 done
 echo -e "\n${RGB_INFO}4/6 : Partitioning and formatting the disk${RGB_END}"
 echo -en "${RGB_WAIT}Partitioning and formatting...${RGB_END}"
-fdisk_mkfs $Disk > /dev/null 2>&1
+fdisk_mkfs $DISK > /dev/null 2>&1
 echo -e "\r${RGB_SUCCESS}Success, the disk has been partitioned and formatted!${RGB_END}\n"
 echo -en "${RGB_INFO}5/6 : Please enter a location to mount (Default directory: /data):${RGB_END}"
 while :; do
-read Mount
-Mount=${Mount:-"/data"}
-if [ -z "`echo $Mount | grep '^/'`" ]; then
+read MOUNT
+MOUNT=${MOUNT:-"/data"}
+if [ -z "`echo $MOUNT | grep '^/'`" ]; then
 	echo -en "${RGB_DANGER}The directory must begin with /, please try again (Default directory: /data):${RGB_END}"
 else
 	echo -en "${RGB_WAIT}Mounting...${RGB_END}"
-	mkdir $Mount > /dev/null 2>&1
-	mount ${Disk}1 $Mount
+	mkdir $MOUNT > /dev/null 2>&1
+	mount ${DISK}1 $MOUNT
 	echo -e "\r${RGB_SUCCESS}Success, the mount is completed!${RGB_END}"
 	break
 fi
 done
 echo -e "\n${RGB_INFO}6/6 : Write the configuration to /etc/fstab and mount the device${RGB_END}"
 echo -en "${RGB_WAIT}Writing...${RGB_END}"
-echo ${Disk}1 $Mount 'ext4 defaults 0 0' >> /etc/fstab
+echo ${DISK}1 $MOUNT 'ext4 defaults 0 0' >> /etc/fstab
 echo -e "\r${RGB_SUCCESS}Success, the /etc/fstab has been written!${RGB_END}"
 echo -e "\n${RGB_WARNING}Show the amount of free disk space on the system${RGB_END}"
 df -h
