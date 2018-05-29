@@ -70,7 +70,7 @@ while mount | grep "$DISK" > /dev/null 2>&1;do
 	while :; do
 	read UMOUNT
 	if [[ ! ${UMOUNT} =~ ^[y,n]$ ]]; then
-		echo -en "${RGB_DANGER}Something went wrong, please try again [y/n]:${RGB_END}"
+		echo -en "${RGB_DANGER}Please try again [y/n]:${RGB_END}"
 	else
 		if [ "${UMOUNT}" == 'y' ]; then
 			echo -en "${RGB_WAIT}Unloading...${RGB_END}"
@@ -91,7 +91,7 @@ while mount | grep "$DISK" > /dev/null 2>&1;do
 	while :; do
 	read CHOICE
 	if [[ ! ${CHOICE} =~ ^[y,n]$ ]]; then
-		echo -en "${RGB_DANGER}Something went wrong, please try again [y/n]:${RGB_END}"
+		echo -en "${RGB_DANGER}Please try again [y/n]:${RGB_END}"
 	else
 		if [ "${CHOICE}" == 'y' ]; then
 			echo -en "${RGB_WAIT}Formatting...${RGB_END}"
@@ -122,14 +122,14 @@ fdisk_centos
 echo -e "\r${RGB_SUCCESS}Success, the script is ready to be installed!${RGB_END}\n"
 echo -e "${RGB_INFO}2/6 : Show all active disks${RGB_END}"
 fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]"
-echo -en "\n${RGB_INFO}3/6 : Please choose the disk(e.g., /dev/vdb):${RGB_END}"
+echo -en "\n${RGB_INFO}3/6 : Please choose the disk (e.g., /dev/vdb):${RGB_END}"
 while :; do
 read DISK
 if [ -z "`echo $DISK | grep '^/dev/.*vd[b-z]'`" ]; then
-	echo -en "${RGB_DANGER}Something went wrong, please try again (e.g., /dev/vdb):${RGB_END}"
+	echo -en "${RGB_DANGER}Please try again (e.g., /dev/vdb):${RGB_END}"
 else
 	until fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]" | grep "Disk $DISK" &>/dev/null;do
-		echo -en "${RGB_DANGER}Something went wrong, please try again (e.g., /dev/vdb):${RGB_END}"
+		echo -en "${RGB_DANGER}Please try again (e.g., /dev/vdb):${RGB_END}"
 		read DISK
 	done
 	fdisk_mounted
