@@ -116,7 +116,7 @@ printf "
 =================================================================================
 "
 [[ $EUID -ne 0 ]] && echo -e "${RGB_DANGER}This script must be run as root!${RGB_END}" && exit 1
-echo -e "${RGB_INFO}1/6 : Check and install the Ext4 module${RGB_END}"
+echo -e "\n${RGB_INFO}1/6 : Check and install the Ext4 module${RGB_END}"
 echo -en "${RGB_WAIT}Checking...${RGB_END}"
 fdisk_centos
 echo -e "\r${RGB_SUCCESS}Success, the script is ready to be installed!${RGB_END}\n"
