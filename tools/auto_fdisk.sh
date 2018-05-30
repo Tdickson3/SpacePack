@@ -43,9 +43,9 @@ else
 fi
 
 fdisk_centos() {
-	if [ "$RELEASE"=="centos" ];then
-		yum -y install e4fsprogs > /dev/null 2>&1
-	fi
+    if [ "$RELEASE"=="centos" ];then
+        yum -y install e4fsprogs > /dev/null 2>&1
+    fi
 }
 
 fdisk_mkfs() {
@@ -64,46 +64,46 @@ mkfs.ext4 ${1}1
 
 fdisk_mounted() {
 while mount | grep "$DISK" > /dev/null 2>&1;do
-	echo -e "\n${RGB_DANGER}This disk has been mounted:${RGB_END}"
-	mount | grep "$DISK"
-	echo -en "\n${RGB_DANGER}Force Unloading the disk? [y/n]:${RGB_END}"
-	while :; do
-	read UMOUNT
-	if [[ ! ${UMOUNT} =~ ^[y,n]$ ]]; then
-		echo -en "${RGB_DANGER}Please try again [y/n]:${RGB_END}"
-	else
-		if [ "${UMOUNT}" == 'y' ]; then
-			echo -en "${RGB_WAIT}Unloading...${RGB_END}"
-			for i in `mount | grep "$DISK" | awk '{print $3}'`;do
-				fuser -km $i >/dev/null
-				umount $i >/dev/null
-				TEMP=`echo $DISK | sed 's;/;\\\/;g'`
-				sed -i -e "/^$TEMP/d" /etc/fstab
-			done
-			echo -e "\r${RGB_SUCCESS}Success, the disk is unloaded!${RGB_END}"
-		else
-			exit
-		fi
-		break
-	fi
-	done
-	echo -en "\n${RGB_DANGER}Ready to format the disk? [y/n]:${RGB_END}"
-	while :; do
-	read CHOICE
-	if [[ ! ${CHOICE} =~ ^[y,n]$ ]]; then
-		echo -en "${RGB_DANGER}Please try again [y/n]:${RGB_END}"
-	else
-		if [ "${CHOICE}" == 'y' ]; then
-			echo -en "${RGB_WAIT}Formatting...${RGB_END}"
-			dd if=/dev/zero of=$DISK bs=512 count=1 &>/dev/null
-			sync
-			echo -e "\r${RGB_SUCCESS}Success, the disk has been formatted!${RGB_END}"
-		else
-			exit
-		fi
-		break
-	fi
-	done
+    echo -e "\n${RGB_DANGER}This disk has been mounted:${RGB_END}"
+    mount | grep "$DISK"
+    echo -en "\n${RGB_DANGER}Force Unloading the disk? [y/n]:${RGB_END}"
+    while :; do
+    read UMOUNT
+    if [[ ! ${UMOUNT} =~ ^[y,n]$ ]]; then
+        echo -en "${RGB_DANGER}Please try again [y/n]:${RGB_END}"
+    else
+        if [ "${UMOUNT}" == 'y' ]; then
+            echo -en "${RGB_WAIT}Unloading...${RGB_END}"
+            for i in `mount | grep "$DISK" | awk '{print $3}'`;do
+                fuser -km $i >/dev/null
+                umount $i >/dev/null
+                TEMP=`echo $DISK | sed 's;/;\\\/;g'`
+                sed -i -e "/^$TEMP/d" /etc/fstab
+            done
+            echo -e "\r${RGB_SUCCESS}Success, the disk is unloaded!${RGB_END}"
+        else
+            exit
+        fi
+        break
+    fi
+    done
+    echo -en "\n${RGB_DANGER}Ready to format the disk? [y/n]:${RGB_END}"
+    while :; do
+    read CHOICE
+    if [[ ! ${CHOICE} =~ ^[y,n]$ ]]; then
+        echo -en "${RGB_DANGER}Please try again [y/n]:${RGB_END}"
+    else
+        if [ "${CHOICE}" == 'y' ]; then
+            echo -en "${RGB_WAIT}Formatting...${RGB_END}"
+            dd if=/dev/zero of=$DISK bs=512 count=1 &>/dev/null
+            sync
+            echo -e "\r${RGB_SUCCESS}Success, the disk has been formatted!${RGB_END}"
+        else
+            exit
+        fi
+        break
+    fi
+    done
 done
 }
 
@@ -126,14 +126,14 @@ echo -en "\n${RGB_INFO}3/6 : Please choose the disk (e.g., /dev/vdb):${RGB_END}"
 while :; do
 read DISK
 if [ -z "`echo $DISK | grep '^/dev/.*vd[b-z]'`" ]; then
-	echo -en "${RGB_DANGER}Please try again (e.g., /dev/vdb):${RGB_END}"
+    echo -en "${RGB_DANGER}Please try again (e.g., /dev/vdb):${RGB_END}"
 else
-	until fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]" | grep "Disk $DISK" &>/dev/null;do
-		echo -en "${RGB_DANGER}Please try again (e.g., /dev/vdb):${RGB_END}"
-		read DISK
-	done
-	fdisk_mounted
-	break
+    until fdisk -l 2>/dev/null | grep -o "Disk /dev/.*vd[b-z]" | grep "Disk $DISK" &>/dev/null;do
+        echo -en "${RGB_DANGER}Please try again (e.g., /dev/vdb):${RGB_END}"
+        read DISK
+    done
+    fdisk_mounted
+    break
 fi
 done
 echo -e "\n${RGB_INFO}4/6 : Partitioning and formatting the disk${RGB_END}"
@@ -145,13 +145,13 @@ while :; do
 read MOUNT
 MOUNT=${MOUNT:-"/data"}
 if [ -z "`echo $MOUNT | grep '^/'`" ]; then
-	echo -en "${RGB_DANGER}The directory must begin with /, please try again (Default directory: /data):${RGB_END}"
+    echo -en "${RGB_DANGER}The directory must begin with /, please try again (Default directory: /data):${RGB_END}"
 else
-	echo -en "${RGB_WAIT}Mounting...${RGB_END}"
-	mkdir $MOUNT > /dev/null 2>&1
-	mount ${DISK}1 $MOUNT
-	echo -e "\r${RGB_SUCCESS}Success, the mount is completed!${RGB_END}"
-	break
+    echo -en "${RGB_WAIT}Mounting...${RGB_END}"
+    mkdir $MOUNT > /dev/null 2>&1
+    mount ${DISK}1 $MOUNT
+    echo -e "\r${RGB_SUCCESS}Success, the mount is completed!${RGB_END}"
+    break
 fi
 done
 echo -e "\n${RGB_INFO}6/6 : Write the configuration to /etc/fstab and mount the device${RGB_END}"
