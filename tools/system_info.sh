@@ -55,7 +55,7 @@ echo -e "=======================================================================
 echo -e "                        System Info tool for SpacePack                           "
 echo -e "             For more information please visit https://spacepack.sh              "
 echo -e "================================================================================="
-echo -e "\n${RGB_WARNING}Hardware Overview (Contains the system, CPU and Memory)${RGB_END}"
+echo -e "\n${RGB_WARNING}Hardware Overview (Contains the System, CPU and Memory)${RGB_END}"
 echo -e "${RGB_INFO}Operation System       ${RGB_END}: $SYSOS"
 echo -e "${RGB_INFO}Hardware Types         ${RGB_END}: $SYSRISC ($SYSLBIT Bit)"
 echo -e "${RGB_INFO}Kernel Version         ${RGB_END}: $KERNEVERSIONL"
