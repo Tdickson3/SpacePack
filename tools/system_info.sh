@@ -40,7 +40,7 @@ SWAPTOTAL=$( cat /proc/meminfo  | grep SwapTotal | awk -F" " '{total=$2/1024}{pr
 SWAPFREE=$( cat /proc/meminfo  | grep SwapFree | awk -F" " '{free=$2/1024}{printf("%d MB",free)}' )
 CPUMODEL=$( cat /proc/cpuinfo | grep 'model name' | awk 'END{print}' | awk -F": " '{print $2}' )
 CPUMHZ=$( cat /proc/cpuinfo | grep 'cpu MHz' | awk 'END{print}' | awk -F": " '{print($2,"MHz")}' )
-CPUCORES=$( cat /proc/cpuinfo | grep 'cpu cores' | awk 'END{print}' | awk -F": " '{print $2}' )
+CPUCORES=$( cat /proc/cpuinfo | awk -F: '/model name/ {core++} END {print core}' )
 CPUCACHE=$( cat /proc/cpuinfo | grep 'cache size' | awk 'END{print}' | awk -F": " '{print $2}' )
 SYSOS=$( operation_system )
 SYSRISC=$( uname -m )
