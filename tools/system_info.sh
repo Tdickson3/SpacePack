@@ -30,8 +30,8 @@ operation_system() {
 
 public_ip() {
     local IP=$( wget -qO- -t1 -T2 api.ip.la )
-    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ip.vtrois.com )
-    [ ! -z ${IP} ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
+    [ -z "${IP}" ] && IP=$( wget -qO- -t1 -T2 ip.vtrois.com )
+    [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
 MEMTOTAL=$( cat /proc/meminfo | grep MemTotal | awk -F" " '{total=$2/1024}{printf("%d MB",total)}' )
@@ -56,16 +56,16 @@ echo -e "                        System Info tool for SpacePack                 
 echo -e "             For more information please visit https://spacepack.sh              "
 echo -e "================================================================================="
 echo -e "\n${RGB_WARNING}Hardware Overview (Contains the System, CPU and Memory)${RGB_END}"
-echo -e "${RGB_INFO}Operation System       ${RGB_END}: $SYSOS"
-echo -e "${RGB_INFO}Hardware Types         ${RGB_END}: $SYSRISC ($SYSLBIT Bit)"
-echo -e "${RGB_INFO}Kernel Version         ${RGB_END}: $KERNEVERSIONL"
-echo -e "${RGB_INFO}CPU model              ${RGB_END}: $CPUMODEL"
-echo -e "${RGB_INFO}CPU Cores              ${RGB_END}: $CPUCORES"
-echo -e "${RGB_INFO}CPU Cache Size         ${RGB_END}: $CPUCACHE"
-echo -e "${RGB_INFO}CPU Basic Frequency    ${RGB_END}: $CPUMHZ"
-echo -e "${RGB_INFO}Total amount of Memory ${RGB_END}: $MEMTOTAL ($MEMFREE Free)"
-echo -e "${RGB_INFO}Total amount of Swap   ${RGB_END}: $SWAPTOTAL ($SWAPFREE Free)"
+echo -e "${RGB_INFO}Operation System       ${RGB_END}: ${SYSOS}"
+echo -e "${RGB_INFO}Hardware Types         ${RGB_END}: ${SYSRISC} (${SYSLBIT} Bit)"
+echo -e "${RGB_INFO}Kernel Version         ${RGB_END}: ${KERNEVERSIONL}"
+echo -e "${RGB_INFO}CPU model              ${RGB_END}: ${CPUMODEL}"
+echo -e "${RGB_INFO}CPU Cores              ${RGB_END}: ${CPUCORES}"
+echo -e "${RGB_INFO}CPU Cache Size         ${RGB_END}: ${CPUCACHE}"
+echo -e "${RGB_INFO}CPU Basic Frequency    ${RGB_END}: ${CPUMHZ}"
+echo -e "${RGB_INFO}Total amount of Memory ${RGB_END}: ${MEMTOTAL} (${MEMFREE} Free)"
+echo -e "${RGB_INFO}Total amount of Swap   ${RGB_END}: ${SWAPTOTAL} (${SWAPFREE} Free)"
 echo -e "\n${RGB_WARNING}Network Overview (Contains the DNS and IP address (public and internal))${RGB_END}"
-echo -e "${RGB_INFO}Public IP              ${RGB_END}: $PUBLICIP"
-echo -e "${RGB_INFO}Internal IP            ${RGB_END}: $INTERNALIP"
-echo -e "${RGB_INFO}Nameserver             ${RGB_END}: $NAMESERVER"
+echo -e "${RGB_INFO}Public IP              ${RGB_END}: ${PUBLICIP}"
+echo -e "${RGB_INFO}Internal IP            ${RGB_END}: ${INTERNALIP}"
+echo -e "${RGB_INFO}Nameserver             ${RGB_END}: ${NAMESERVER}"
