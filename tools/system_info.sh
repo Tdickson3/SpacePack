@@ -29,8 +29,8 @@ operation_system() {
 }
 
 public_ip() {
-    local IP=$( wget -qO- -t1 -T2 api.ip.la )
-    [ ! -z "${PIP}" ] && echo ${PIP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
+    local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
 MEMTOTAL=$( cat /proc/meminfo | grep "MemTotal" | awk -F" " '{total=$2/1000}{printf("%d MB",total)}' )
