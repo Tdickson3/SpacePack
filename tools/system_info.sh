@@ -33,6 +33,15 @@ public_ip() {
     [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
+tencent_cloud() {
+    PUBLICIP=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/public-ipv4 )
+    LOCALIP=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/local-ipv4 )
+    MACADDRESS=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/mac )
+    INSTANCEID=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/instance-id )
+    UUID=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/uuid )
+    REGIONZONE=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/placement/zone )
+}
+
 MEMTOTAL=$( cat /proc/meminfo | grep "MemTotal" | awk -F" " '{total=$2/1000}{printf("%d MB",total)}' )
 MEMFREE=$( cat /proc/meminfo | grep "MemFree" | awk -F" " '{free=$2/1000}{printf("%d MB",free)}' )
 SWAPTOTAL=$( cat /proc/meminfo  | grep "SwapTotal" | awk -F" " '{total=$2/1000}{printf("%d MB",total)}' )
@@ -48,12 +57,7 @@ KERNEVERSIONL=$( cat /proc/version | awk -F" " '{print $3}' )
 NAMESERVER=$( cat /etc/resolv.conf | awk '/^nameserver/{print $2}' | awk 'BEGIN{FS="\n";RS="";ORS=""}{for(x=1;x<=NF;x++){print $x"\t"} print "\n"}' )
 TENCENTCLOUD=$( wget -qO- -t1 -T2 metadata.tencentyun.com )
 if [ ! -z "${TENCENTCLOUD}" ]; then
-PUBLICIP=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/public-ipv4 )
-LOCALIP=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/local-ipv4 )
-MACADDRESS=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/mac )
-INSTANCEID=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/instance-id )
-UUID=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/uuid )
-REGIONZONE=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/placement/zone )
+tencent_cloud
 else
 PUBLICIP=$( public_ip )
 LOCALIP=$( ifconfig | grep "inet" | grep -v "127.0" | xargs | awk -F '[ :]' '{print $2}' )
