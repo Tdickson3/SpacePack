@@ -17,6 +17,8 @@
 # Github URL:   https://github.com/Vtrois/SpacePack
 # License:      GPLv3
 
+export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+
 RGB_DANGER='🚨 \033[31;1m'
 RGB_WAIT='⏳ \033[37;2m'
 RGB_SUCCESS='✨ \033[32m'
@@ -24,25 +26,38 @@ RGB_WARNING='💡 \033[33;1m'
 RGB_INFO='📋 \033[36;1m'
 RGB_END='\033[0m'
 
-if [ -f /etc/redhat-release ]; then
-    RELEASE="centos"
-elif cat /etc/issue | grep -Eqi "debian"; then
-    RELEASE="debian"
-elif cat /etc/issue | grep -Eqi "ubuntu"; then
-    RELEASE="ubuntu"
-elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
-    RELEASE="centos"
-elif cat /proc/version | grep -Eqi "debian"; then
-    RELEASE="debian"
-elif cat /proc/version | grep -Eqi "ubuntu"; then
-    RELEASE="ubuntu"
-elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
-    RELEASE="centos"
-else
-    RELEASE=""
-fi
+tool_info() {
+    echo -e "================================================================================="
+    echo -e "                         Auto fdisk tool for SpacePack                           "
+    echo -e "             For more information please visit https://spacepack.sh              "
+    echo -e "================================================================================="
+}
+
+check_root(){
+    if [[ $EUID -ne 0 ]]; then
+       echo -e "${RGB_DANGER}The script must be run as root!${RGB_END}"
+       exit 1
+    fi
+}
 
 fdisk_centos() {
+    if [ -f /etc/redhat-release ]; then
+        RELEASE="centos"
+    elif cat /etc/issue | grep -Eqi "debian"; then
+        RELEASE="debian"
+    elif cat /etc/issue | grep -Eqi "ubuntu"; then
+        RELEASE="ubuntu"
+    elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+        RELEASE="centos"
+    elif cat /proc/version | grep -Eqi "debian"; then
+        RELEASE="debian"
+    elif cat /proc/version | grep -Eqi "ubuntu"; then
+        RELEASE="ubuntu"
+    elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+        RELEASE="centos"
+    else
+        RELEASE="unknown"
+    fi
     if [ "${RELEASE}"=="centos" ];then
         yum -y install e4fsprogs > /dev/null 2>&1
     fi
@@ -107,13 +122,9 @@ while mount | grep "${DISK}" > /dev/null 2>&1;do
 done
 }
 
-export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
 clear
-echo -e "================================================================================="
-echo -e "                         Auto fdisk tool for SpacePack                           "
-echo -e "             For more information please visit https://spacepack.sh              "
-echo -e "================================================================================="
-[[ $EUID -ne 0 ]] && echo -e "${RGB_DANGER}This script must be run as root!${RGB_END}" && exit 1
+tool_info
+check_root
 echo -e "\n${RGB_INFO}1/6 : Check and install the Ext4 module${RGB_END}"
 echo -en "${RGB_WAIT}Checking...${RGB_END}"
 fdisk_centos
