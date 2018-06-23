@@ -70,7 +70,7 @@ check_tun(){
 
 check_lock() {
     if [ -f "$LOCK" ];then
-    echo -e "${RGB_DANGER}The script has been installed!${RGB_END}"
+    echo -e "${RGB_DANGER}The PPTP has been installed!${RGB_END}"
     exit 1
     else
     touch $LOCK
@@ -350,6 +350,6 @@ case ${ACTION} in
         echo -e "Unknown option: $1"
         echo -e "\nUsage: [-i,--install] [-l,--list] [-a,--add] [-d,--del]"
         echo -e "         [-m,--mod] [-v,--version] [-h,--help]"
-        exit
+        exit 1
         ;;
 esac
