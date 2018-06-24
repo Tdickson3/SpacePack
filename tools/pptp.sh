@@ -27,13 +27,13 @@ RGB_INFO='📋 \033[36;1m'
 RGB_END='\033[0m'
 PASSWORD=$( cat /dev/urandom | head -n 10 | md5sum | head -c 10 )
 ETH=$( route | grep default | awk '{print $NF}' )
-LOCK=/tmp/.spacepack_pptp
+LOCK=/tmp/sp_pptp.log
 
 tool_info() {
-    echo -e "================================================================================="
-    echo -e "                            PPTP tool for SpacePack                              "
-    echo -e "             For more information please visit https://spacepack.sh              "
-    echo -e "================================================================================="
+    echo -e "==========================================================================================="
+    echo -e "                                 PPTP tool for SpacePack                                   "
+    echo -e "                  For more information please visit https://spacepack.sh                   "
+    echo -e "==========================================================================================="
 }
 
 show_help() {
@@ -51,7 +51,7 @@ show_help() {
 }
 
 version() {
-  echo "PPTP tool version 1.0"
+  echo "PPTP tool version 1.1"
 }
 
 check_root(){
@@ -70,7 +70,7 @@ check_tun(){
 
 check_lock() {
     if [ -f "$LOCK" ];then
-    echo -e "${RGB_DANGER}The PPTP has been installed!${RGB_END}"
+    echo -e "\n${RGB_DANGER}The PPTP has been installed, please use $0 -h to consult the help.${RGB_END}"
     exit 1
     else
     touch $LOCK
@@ -95,10 +95,45 @@ check_os() {
     else
         RELEASE="unknown"
     fi
+    if [ "${RELEASE}" = "ubuntu" ] || [ "${RELEASE}" = "debian" ];then
+        for PACKAGE in wget pptpd ppp iptables
+        do
+        apt-get -y update >> ${LOCK} 2>&1
+        apt-get -y install ${PACKAGE} >> ${LOCK} 2>&1
+        done
+    elif [ "${RELEASE}" = "centos" ];then
+        CENTOSVERSION=$( rpm -q centos-release | cut -d- -f3 )
+        if [ "${CENTOSVERSION}" == "7" ];then
+            for PACKAGE in wget ppp pptpd firewalld
+            do
+                yum -y update >> ${LOCK} 2>&1
+                yum -y install ${PACKAGE} >> ${LOCK} 2>&1
+            done
+        elif [ "${CENTOSVERSION}" == "6" ];then
+            for PACKAGE in wget ppp iptables
+            do
+                yum -y update >> ${LOCK} 2>&1
+                yum -y install ${PACKAGE} >> ${LOCK} 2>&1
+            done
+            rpm -Uvh http://poptop.sourceforge.net/yum/stable/rhel6/pptp-release-current.noarch.rpm >> ${LOCK} 2>&1
+            yum -y install pptpd >> ${LOCK} 2>&1
+        else
+            echo -e "${RGB_DANGER}The system version needs to be more than Centos 6.x!${RGB_END}"
+            exit 1
+        fi
+    else
+        echo -e "${RGB_DANGER}The tool does not support your OS!${RGB_END}"
+        exit 1
+    fi
+    sed -i 's@^net.ipv4.tcp_syncookies.*@#net.ipv4.tcp_syncookies = 1@g' /etc/sysctl.conf >> ${LOCK} 2>&1
+    sed -i 's@^net.ipv4.ip_forward.*@#net.ipv4.ip_forward = 0@g' /etc/sysctl.conf >> ${LOCK} 2>&1
+    echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf >> ${LOCK} 2>&1
+    sysctl -p >> ${LOCK} 2>&1
 }
 
 public_ip() {
     local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( curl ip.cip.cc )
     [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
@@ -136,37 +171,6 @@ install_pptp() {
     echo -e "\n${RGB_INFO}1/4 : Check and install the PPTP module${RGB_END}"
     echo -en "${RGB_WAIT}Checking...${RGB_END}"
     check_os
-    if [ "${RELEASE}" = "ubuntu" ];then
-        for PACKAGE in wget pptpd ppp iptables
-        do
-        apt-get -y install ${PACKAGE} > /dev/null 2>&1
-        done
-    elif [ "${RELEASE}" = "centos" ];then
-        CENTOSVERSION=$( rpm -q centos-release | cut -d- -f3 )
-        if [ "${CENTOSVERSION}" == "7" ];then
-            for PACKAGE in wget ppp pptpd firewalld
-            do
-                yum -y install ${PACKAGE} > /dev/null 2>&1
-            done
-        elif [ "${CENTOSVERSION}" == "6" ];then
-            for PACKAGE in wget ppp iptables
-            do
-                yum -y install ${PACKAGE} > /dev/null 2>&1
-            done
-            rpm -Uvh http://poptop.sourceforge.net/yum/stable/rhel6/pptp-release-current.noarch.rpm > /dev/null 2>&1
-            yum -y install pptpd > /dev/null 2>&1
-        else
-            echo -e "${RGB_DANGER}The system version needs to be more than Centos 6.x!${RGB_END}"
-            exit 1
-        fi
-    else
-        echo -e "${RGB_DANGER}The tool does not support your OS!${RGB_END}"
-        exit 1
-    fi
-    sed -i 's@^net.ipv4.tcp_syncookies.*@#net.ipv4.tcp_syncookies = 1@g' /etc/sysctl.conf
-    sed -i 's@^net.ipv4.ip_forward.*@#net.ipv4.ip_forward = 0@g' /etc/sysctl.conf
-    echo 'net.ipv4.ip_forward = 1' >> /etc/sysctl.conf
-    sysctl -p > /dev/null 2>&1
     echo -e "\r${RGB_SUCCESS}Success, the script is ready to be installed!${RGB_END}"
 }
 
@@ -208,17 +212,17 @@ novjccomp
 nologfd
 END
     if [ "${RELEASE}" != "centos" ];then
-        iptables_ubuntu > /dev/null 2>&1
-        /etc/init.d/pptpd restart > /dev/null 2>&1
+        iptables_ubuntu >> ${LOCK} 2>&1
+        /etc/init.d/pptpd restart >> ${LOCK} 2>&1
     else
         if [ "${CENTOSVERSION}" == "7" ];then
-            firewall_centos > /dev/null 2>&1
-            systemctl restart pptpd.service > /dev/null 2>&1
-            systemctl enable pptpd.service > /dev/null 2>&1
+            firewall_centos >> ${LOCK} 2>&1
+            systemctl restart pptpd.service >> ${LOCK} 2>&1
+            systemctl enable pptpd.service >> ${LOCK} 2>&1
         elif [ "${CENTOSVERSION}" == "6" ];then
-            iptables_centos > /dev/null 2>&1
-            service pptpd restart > /dev/null 2>&1
-            chkconfig pptpd on > /dev/null 2>&1
+            iptables_centos >> ${LOCK} 2>&1
+            service pptpd restart >> ${LOCK} 2>&1
+            chkconfig pptpd on >> ${LOCK} 2>&1
         fi
     fi
     echo -e "\r${RGB_SUCCESS}Success, configuration completion!${RGB_END}\n"
