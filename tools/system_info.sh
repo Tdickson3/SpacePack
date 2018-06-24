@@ -22,6 +22,13 @@ RGB_DANGER='\033[31m'
 RGB_INFO='\033[36m'
 RGB_END='\033[0m'
 
+tool_info() {
+    echo -e "==========================================================================================="
+    echo -e "                             System Info tool for SpacePack                                "
+    echo -e "                  For more information please visit https://spacepack.sh                   "
+    echo -e "==========================================================================================="
+}
+
 operation_system() {
     [ -f /etc/redhat-release ] && awk '{print ($1,$3~/^[0-9]/?$3:$4)}' /etc/redhat-release && return
     [ -f /etc/os-release ] && awk -F'[= "]' '/PRETTY_NAME/{print $3,$4,$5}' /etc/os-release && return
@@ -30,6 +37,7 @@ operation_system() {
 
 public_ip() {
     local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip)
     [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
@@ -65,10 +73,7 @@ MACADDRESS=$( ifconfig | grep "ether" | awk -F" " '{print $2}' )
 fi
 
 clear
-echo -e "================================================================================="
-echo -e "                        System Info tool for SpacePack                           "
-echo -e "             For more information please visit https://spacepack.sh              "
-echo -e "================================================================================="
+tool_info
 echo -e "\n${RGB_WARNING}Hardware Overview (Contains the System, CPU and Memory)${RGB_END}"
 echo -e "${RGB_INFO}Operation System       ${RGB_END}: ${SYSOS}"
 echo -e "${RGB_INFO}Hardware Types         ${RGB_END}: ${SYSRISC} (${SYSLBIT} Bit)"
