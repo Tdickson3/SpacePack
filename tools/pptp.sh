@@ -27,6 +27,7 @@ RGB_INFO='📋 \033[36;1m'
 RGB_END='\033[0m'
 PASSWORD=$( cat /dev/urandom | head -n 10 | md5sum | head -c 10 )
 ETH=$( route | grep default | awk '{print $NF}' )
+TENCENTCLOUD=$( wget -qO- -t1 -T2 metadata.tencentyun.com )
 LOCK=/tmp/sp_pptp.log
 
 tool_info() {
@@ -132,8 +133,12 @@ check_os() {
 }
 
 public_ip() {
-    local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( curl ip.cip.cc )
+    if [ ! -z "${TENCENTCLOUD}" ]; then
+        local IP=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/public-ipv4 )
+    else
+        local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    fi
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
     [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
@@ -320,7 +325,7 @@ install() {
     userpass_conf
     pptp_conf
     finish_conf
-    echo -e "\n${RGB_WARNING}If you use Tencent Cloud or other, please enable port 1723 and 47 for SecurityGroup!${RGB_END}"
+    echo -e "\n${RGB_WARNING}If you use Tencent Cloud or other, please enable [TCP:1723,47] for SecurityGroup!${RGB_END}"
 }
 
 ACTION=$1
