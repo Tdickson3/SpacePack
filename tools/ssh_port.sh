@@ -122,8 +122,8 @@ change_port() {
         echo -en "${RGB_WAIT}Checking...${RGB_END}"
         check_os
         echo -e "\r${RGB_SUCCESS}Success, the SSH service restart completed!${RGB_END}\n"
-        echo -e "${RGB_WARNING}Please enable port ${NPORT} for firewalld/iptables manually set if necessary!${RGB_END}\n"
-        echo -e "${RGB_WARNING}If you use Tencent Cloud or other, please enable port ${NPORT} for SecurityGroup!${RGB_END}"
+        echo -e "${RGB_WARNING}Please enable [TCP:${NPORT}] for firewalld/iptables manually set if necessary!${RGB_END}\n"
+        echo -e "${RGB_WARNING}If you use Tencent Cloud or other, please enable [TCP:${NPORT}] for SecurityGroup!${RGB_END}"
     else
         echo -e "${RGB_DANGER}Can not find the sshd server system-wide configuration file!${RGB_END}"
         exit 1
