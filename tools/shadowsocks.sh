@@ -29,6 +29,7 @@ PASSWORD=$( cat /dev/urandom | head -n 10 | md5sum | head -c 15 )
 SSPORT=$( shuf -i 1024-65535 -n 1 )
 BASE=$( pwd )
 LOCK=/tmp/sp_shadowsocks.log
+TENCENTCLOUD=$( wget -qO- -t1 -T2 metadata.tencentyun.com )
 SHADOWSOCKSURL="https://github.com/shadowsocks/shadowsocks/archive/master.zip"
 LIBSODIUMURL="https://github.com/jedisct1/libsodium/releases/download/1.0.16/libsodium-1.0.16.tar.gz"
 ENCRYPTIONS=(
@@ -119,7 +120,6 @@ check_os() {
         if [ "${CENTOSVERSION}" != "5" ];then
             for PACKAGE in wget curl python python-devel python-setuptools openssl openssl-devel unzip gcc automake autoconf make libtool
             do
-                yum -y update >> ${LOCK} 2>&1
                 yum -y install ${PACKAGE} >> ${LOCK} 2>&1
             done
         else
@@ -142,8 +142,12 @@ check_os() {
 }
 
 public_ip() {
-    local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
-    [ -z ${IP} ] && IP=$( curl ip.cip.cc )
+    if [ ! -z "${TENCENTCLOUD}" ]; then
+        local IP=$( wget -qO- -t1 -T2 metadata.tencentyun.com/latest/meta-data/public-ipv4 )
+    else
+        local IP=$( wget -qO- -t1 -T2 ipv4.icanhazip.com )
+    fi
+    [ -z ${IP} ] && IP=$( wget -qO- -t1 -T2 ipinfo.io/ip )
     [ ! -z "${IP}" ] && echo ${IP} || echo -e "${RGB_DANGER}Unknown${RGB_END}"
 }
 
@@ -341,12 +345,12 @@ finish_conf() {
     local BASESS=$(echo -n "${CENCRYPTION}:${NPASSWORD}@${PUBLICIP}:${NSSPORT}" | base64 -w0)
     local SHOWSS="ss://${BASESS}"
     echo -e "\n${RGB_WARNING}Shadowsocks Overview (Contains the IP address, Password, Port and Encryption)${RGB_END}"
-    echo -e "IP address      : ${PUBLICIP}"
-    echo -e "Server Port     : ${NSSPORT}"
-    echo -e "Password        : ${NPASSWORD}"
-    echo -e "Encryption      : ${CENCRYPTION}"
-    echo -e "SS Code         : ${SHOWSS}"
-    echo -e "\n${RGB_WARNING}If you use Tencent Cloud or other, please enable port ${NSSPORT} for SecurityGroup!${RGB_END}"
+    echo -e "IP address     : ${PUBLICIP}"
+    echo -e "Server Port    : ${NSSPORT}"
+    echo -e "Password       : ${NPASSWORD}"
+    echo -e "Encryption     : ${CENCRYPTION}"
+    echo -e "SS Code        : ${SHOWSS}"
+    echo -e "\n${RGB_WARNING}If you use Tencent Cloud or other, please enable [TCP:${NSSPORT}] for SecurityGroup!${RGB_END}"
 }
 
 clean_all() {
